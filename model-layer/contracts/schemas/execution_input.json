@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Execution Router Input",
+  "type": "object",
+  "required": ["request_hash", "prompt_metadata", "nodes"],
+  "properties": {
+    "request_hash": {"type": "string"},
+    "prompt_metadata": {
+      "type": "object",
+      "properties": {
+        "version": {"type":"string"},
+        "prompt_type": {"type":"string"},
+        "deterministic": {"type":"boolean"}
+      },
+      "additionalProperties": true
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id","capabilities"],
+        "properties": {
+          "id": {"type":"string"},
+          "capabilities": {"type":"object", "additionalProperties": true}
+        }
+      },
+      "minItems": 0
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "max_parallel": {"type": "integer", "minimum": 1},
+        "require_gpu": {"type":"boolean"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

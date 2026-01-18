@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 coordination-v1/
+
+# ignore virtualenvs
+coord-v2/prototype/.venv/
