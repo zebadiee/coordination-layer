@@ -1,0 +1,4 @@
+.PHONY: test-c12
+
+test-c12:
+	pytest -q model-layer/tests/unit -k orchestrator -q

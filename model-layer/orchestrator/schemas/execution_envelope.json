@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Execution Envelope",
+  "type": "object",
+  "required": ["orchestrator_version","execution_id","strategy","steps","guarantees"],
+  "properties": {
+    "orchestrator_version": {"type":"string"},
+    "execution_id": {"type":"string"},
+    "strategy": {"type":"string"},
+    "steps": {"type":"array","items":{"type":"object","required":["step","adapter","node","mode","timeout_ms"],"properties":{"step":{"type":"integer"},"adapter":{"type":"string"},"node":{"type":"string"},"mode":{"type":"string"},"timeout_ms":{"type":"integer"}}}},
+    "guarantees": {"type":"object","properties":{"deterministic":{"type":"boolean"},"no_persistence":{"type":"boolean"},"no_execution":{"type":"boolean"}},"additionalProperties": false},
+    "_explain": {"type":"object"}
+  },
+  "additionalProperties": false
+}
