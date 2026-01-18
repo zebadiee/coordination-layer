@@ -1,22 +1,11 @@
-Coord-v2 CONTRACT — Parsing + Echo (draft)
+Coord-v2 CONTRACT — Parsing + Echo (summary)
 
-Purpose
-- Define the minimal semantic contract for `/coord/v2` used in C6: parse payload, verify allowed fields, and return a stable nonce/hash echo without maintaining shared state.
+See `C6-CONTRACT-FULL.md` for the full, canonical contract (exact request/response schemas, canonicalization rules, invariants, acceptance tests, and governance checklist).
 
-Allowed behavior
-- Parse JSON or application/x-www-form-urlencoded payloads.
-- Validate syntactic correctness and reject malformed requests with 4xx responses.
-- Return a JSON response including:
-  - `nonce`: server-generated opaque nonce (UUID or base64) or a hash derived deterministically from allowed inputs
-  - `status`: `ok` or `rejected`
-  - `reason`: on rejected requests
-
-Prohibited behavior
-- No persistent writes or shared state across requests.
-- No retry orchestration or client-scoped backoff enforcement.
-- No implicit coupling to `/coord` (the frozen endpoint remains untouched).
+Summary
+- Stateless parsing endpoint that returns `server_nonce` (fresh) and `hash` (canonicalized SHA-256) for valid requests.
+- Rejects malformed JSON, unsupported media types, and oversized payloads.
+- Must not persist raw payloads or maintain shared state. No auth, no leader logic, no retry orchestration.
 
 Acceptance criteria
-- Unit tests for parsing, rejection rules, and nonce format.
-- Integration test asserting absence of side-effects after repeated requests.
-- Performance check: minimal latency under baseline load.
+- See `C6-CONTRACT-FULL.md` for exact unit, integration, and governance tests required for C6 PASS.

@@ -1,0 +1,9 @@
+C10 Signed Off ✅
+
+All unit CI jobs are green on this branch: **c7-tests**, **c8-tests**, **c9-tests**, **c10-tests**.
+
+Governance checklist: `governance/C10_FREEZE_CHECKLIST.md`.
+
+Annotated tag `model-layer-adapter-contract-v1` has been created and pushed.
+
+Per process: please apply the governance label and assign a reviewer for formal sign-off.

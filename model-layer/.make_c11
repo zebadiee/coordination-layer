@@ -1,0 +1,4 @@
+.PHONY: test-c11
+
+test-c11:
+	pytest -q model-layer/tests/unit -k planner -q

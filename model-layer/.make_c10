@@ -1,0 +1,4 @@
+.PHONY: test-c10
+
+test-c10:
+	pytest -q model-layer/tests/unit/test_adapter_descriptor.py model-layer/tests/unit/test_adapter_rejection.py

@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Execution Plan",
+  "type": "object",
+  "required": ["strategy","nodes","timeout_ms","merge_policy"],
+  "properties": {
+    "strategy": {"type":"string","enum":["single","fanout","verify","fallback"]},
+    "nodes": {"type":"array","items":{"type":"string"}},
+    "timeout_ms": {"type":"integer","minimum":1},
+    "merge_policy": {"type":"string","enum":["first_success","vote","rank"]},
+    "constraints": {"type":"object","properties":{"deterministic":{"type":"boolean"},"max_parallel":{"type":"integer"}},"additionalProperties": false}
+  },
+  "additionalProperties": false
+}

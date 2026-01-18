@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Model Layer Prompt Input",
+  "type": "object",
+  "required": ["version", "prompt_type", "prompt"],
+  "properties": {
+    "version": {"type": "string", "pattern": "^model-layer-v\\d+$"},
+    "prompt_id": {"type": "string"},
+    "prompt_type": {"type": "string", "enum": ["system", "task", "tool", "verification"]},
+    "prompt": {"type": "string", "minLength": 1},
+    "params": {
+      "type": "object",
+      "properties": {
+        "temperature": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "max_tokens": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "deterministic": {"type": "boolean"},
+        "seed": {"type": "integer"},
+        "timeout_ms": {"type": "integer", "minimum": 1},
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {"type": ["string", "number"]}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

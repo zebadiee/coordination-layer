@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Adapter Descriptor",
+  "type": "object",
+  "required": ["adapter_id","adapter_version","backend_type","vendor","capabilities","limits"],
+  "properties": {
+    "adapter_id": {"type":"string"},
+    "adapter_version": {"type":"string","pattern":"^\\d+\\.\\d+\\.\\d+$"},
+    "backend_type": {"type":"string","enum":["cpu","gpu","remote","mock"]},
+    "vendor": {"type":"string"},
+    "capabilities": {
+      "type":"object",
+      "required":["max_tokens","deterministic","supported_prompt_types","supported_strategies","concurrency"],
+      "properties":{
+        "max_tokens":{"type":"integer","minimum":1},
+        "deterministic":{"type":"boolean"},
+        "supported_prompt_types":{"type":"array","items":{"type":"string"}},
+        "supported_strategies":{"type":"array","items":{"type":"string"}},
+        "concurrency":{"type":"integer","minimum":1}
+      },
+      "additionalProperties": false
+    },
+    "limits": {
+      "type":"object",
+      "required":["timeout_ms_max","memory_mb_max"],
+      "properties":{
+        "timeout_ms_max":{"type":"integer","minimum":1},
+        "memory_mb_max":{"type":"integer","minimum":1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
