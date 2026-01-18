@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Model Layer Prompt Output",
+  "type": "object",
+  "required": ["status", "audit"],
+  "properties": {
+    "status": {"type": "string", "enum": ["ok", "rejected", "error"]},
+    "model_response": {
+      "type": "object",
+      "properties": {
+        "text": {"type": "string"},
+        "tokens_used": {"type": "object", "properties": {"input": {"type": "integer"}, "output": {"type": "integer"}}, "additionalProperties": false},
+        "deterministic_seed": {"type": ["integer", "null"]},
+        "metadata": {"type": "object", "additionalProperties": true}
+      },
+      "additionalProperties": false
+    },
+    "audit": {
+      "type": "object",
+      "required": ["request_hash", "schema_version"],
+      "properties": {
+        "request_hash": {"type": "string"},
+        "schema_version": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "code": {"type": "string"},
+    "reason": {"type": "string"}
+  },
+  "additionalProperties": false
+}
