@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Adapter Health",
+  "type": "object",
+  "required":["status","details"],
+  "properties":{
+    "status":{"type":"string","enum":["ok","degraded","unavailable"]},
+    "details":{"type":"object","properties":{"latency_ms":{"type":"integer","minimum":0},"last_error":{"type":["string","null"]}},"additionalProperties": false}
+  },
+  "additionalProperties": false
+}
