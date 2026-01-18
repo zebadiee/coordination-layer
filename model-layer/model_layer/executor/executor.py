@@ -37,29 +37,36 @@ def _simulate_step(step: Dict[str, Any]) -> Dict[str, Any]:
     if timeout is not None and duration > int(timeout):
         status = "timed_out"
         result = None
+        payload_hash = None
     else:
         status = "ok"
         # deterministic result: hash of payload (or empty) and step id
         result = _id_for({"id": sid, "payload": step.get("payload")})
+        # payload-only deterministic identifier (used for quorum checks)
+        payload_hash = _id_for(step.get("payload"))
 
     return {
         "id": sid,
         "status": status,
         "duration_ms": duration,
         "result": result,
+        "payload_hash": payload_hash,
         "group": step.get("group"),
     }
 
 
 def _compute_quorum(groups: Dict[str, List[Dict[str, Any]]]) -> Dict[str, bool]:
-    """For each group of step results, compute whether a majority agreed."""
+    """For each group of step results, compute whether a majority agreed.
+
+    Use `payload_hash` to determine equivalence of results across different
+    step ids (so identical payloads count towards quorum).
+    """
     quorum = {}
     for gid, members in groups.items():
         counts = {}
         for m in members:
-            r = m.get("result")
+            r = m.get("payload_hash")
             counts[r] = counts.get(r, 0) + 1
-        # majority exists if any count > len(members)//2
         majority = any(c > (len(members) // 2) for c in counts.values())
         quorum[gid] = majority
     return quorum
