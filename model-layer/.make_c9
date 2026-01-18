@@ -1,4 +1,4 @@
 .PHONY: test-c9
 
 test-c9:
-	pytest -q tests/unit/test_execution_plan.py
+	pytest -q model-layer/tests/unit/test_execution_plan.py
