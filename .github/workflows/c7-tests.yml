@@ -27,7 +27,7 @@ jobs:
           python -m venv .venv
           . .venv/bin/activate
           pip install --upgrade pip
-          pip install pytest
+          pip install pytest jsonschema
           pip install -r requirements.txt || true
 
       - name: Run unit tests
@@ -57,7 +57,7 @@ jobs:
           python -m venv .venv
           . .venv/bin/activate
           pip install --upgrade pip
-          pip install pytest
+          pip install pytest jsonschema
           pip install -r requirements.txt || true
 
       - name: Run C8 unit tests
