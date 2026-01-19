@@ -14,3 +14,14 @@ Governance Actions
 - All Phase 9 experiments should be documented and recorded in the governance directory with run IDs and artifact hashes.
 
 Status: Plan created; tests and workflow scaffold to be added on branch `phase9/resource-starvation`.
+
+Outcome (observed)
+------------------
+- **RLIMIT-based resource starvation:** enforced and verified (tests show process-level limits cause deterministic failures).
+- **Container memory quota:** observational only; containerized runs may succeed under constrained memory and therefore are classified as environment-dependent.
+- **Classification:** **DRIFT** (environment-dependent). Documented and tagged as `phase9-resource-starvation-drift`.
+
+Next steps
+----------
+- Merge `phase9/resource-starvation` and monitor run artifacts; tag any unexpected findings and harden as needed.
+
