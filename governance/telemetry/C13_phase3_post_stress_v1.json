@@ -1,0 +1,15 @@
+{
+  "phase": "Phase 3 - Deterministic Stress",
+  "date": "2026-01-19T00:00:00Z",
+  "runs": 1000,
+  "workers": 8,
+  "seed": 0,
+  "strategy": "single",
+  "fanout": 1,
+  "quorum": 0,
+  "unique_trace_hashes": ["f925cc0ac8c40973a5e199dda5ea4fcb85e3897daa0cffbe6fde8529d93b1f1a"],
+  "failure_count": 0,
+  "wall_time_sec": 0.23193267299211584,
+  "start_rss_kb": 14964,
+  "peak_rss_kb": 20140
+}

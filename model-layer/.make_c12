@@ -1,2 +1,4 @@
-test_c12:
-	pytest -q model-layer/tests/unit/test_orchestrator.py
+.PHONY: test-c12
+
+test-c12:
+	pytest -q model-layer/tests/unit -k orchestrator -q

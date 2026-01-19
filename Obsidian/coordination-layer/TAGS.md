@@ -8,4 +8,8 @@
   - Tag: https://github.com/zebadiee/coordination-layer/releases/tag/model-layer-adapter-contract-v1
   - Commit: 1eca04dda8a517f982dff2a3395c482574de963c
 
+- model-layer-planner-v1 — C11 freeze (Execution Planner)
+  - Tag: https://github.com/zebadiee/coordination-layer/releases/tag/model-layer-planner-v1
+  - Commit: 7541c44bf9233ba46129748dd739e3e04878f36c
+
 Notes: Use tags as anchors for freeze & governance audit notes in Obsidian.

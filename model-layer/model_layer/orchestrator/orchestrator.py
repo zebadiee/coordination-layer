@@ -1,13 +1,14 @@
-"""C12 orchestrator implementation (packaged)
+"""C12 orchestrator implementation
 
-This file mirrors `model-layer/orchestrator/orchestrator.py` but is placed
-under the `model_layer` package so tests and imports work consistently.
+Provides build_execution_envelope(plan, adapters) which returns a deterministic
+execution envelope (dry-run). This is a self-contained, pure function with no
+I/O or network access.
 """
 from __future__ import annotations
 
 import json
 import hashlib
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 def canonical_json(obj: Any) -> str:
@@ -15,30 +16,60 @@ def canonical_json(obj: Any) -> str:
 
 
 def _id_for(obj: Any) -> str:
-    s = canonical_json(obj)
-    return hashlib.sha256(s.encode("utf-8")).hexdigest()
+    return hashlib.sha256(canonical_json(obj).encode("utf-8")).hexdigest()
 
 
-def build_envelope(plan: Dict[str, Any]) -> Dict[str, Any]:
+def _adapter_map(adapters: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    return {a["adapter_id"]: a for a in adapters}
+
+
+def build_execution_envelope(plan: Dict[str, Any], adapters: List[Dict[str, Any]]) -> Dict[str, Any]:
     if not isinstance(plan, dict):
         raise TypeError("plan must be an object")
-    if "plan_id" not in plan or "steps" not in plan:
-        raise ValueError("plan must contain plan_id and steps")
-    if not isinstance(plan["steps"], list):
-        raise TypeError("steps must be a list")
+    if "strategy" not in plan or "nodes" not in plan:
+        raise ValueError("plan must contain strategy and nodes")
+    if not isinstance(plan["nodes"], list):
+        raise TypeError("nodes must be a list")
 
-    steps_out = []
-    for step in plan["steps"]:
-        if not isinstance(step, dict):
-            raise TypeError("each step must be an object")
-        sid = _id_for(step)
-        step_copy = dict(step)
-        step_copy["id"] = sid
-        steps_out.append(step_copy)
+    # Structural validations
+    if len(plan["nodes"]) == 0:
+        raise ValueError("plan.nodes must not be empty")
+    if len(set(plan["nodes"])) != len(plan["nodes"]):
+        raise ValueError("duplicate node ids in plan.nodes")
 
+    amap = _adapter_map(adapters)
+
+    # Validate nodes
+    for n in plan["nodes"]:
+        if n not in amap:
+            raise ValueError(f"unknown nodes or no adapter for: {n}")
+
+    # Determine node ordering: deterministic sorted order
+    nodes_sorted = sorted(plan["nodes"])
+
+    steps = []
+    timeout_ms = plan.get("timeout_ms")
+    for node in nodes_sorted:
+        step = {
+            "node": node,
+            "adapter": amap[node]["adapter_id"],
+            "mode": "dry-run",
+        }
+        if timeout_ms is not None:
+            step["timeout_ms"] = timeout_ms
+        # deterministic per-step id
+        step_id = _id_for(step)
+        step["id"] = step_id
+        steps.append(step)
+
+    plan_id = plan.get("plan_id") or _id_for(plan)
     envelope = {
-        "plan_id": plan["plan_id"],
-        "envelope_id": _id_for({"plan_id": plan["plan_id"], "steps": [s["id"] for s in steps_out]}),
-        "steps": steps_out,
+        "plan_id": plan_id,
+        "steps": steps,
+        "envelope_id": _id_for({"plan_id": plan_id, "steps": [s["id"] for s in steps]}),
     }
     return envelope
+
+
+# Backwards-compatible alias (if other modules expect a different name)
+build_envelope = build_execution_envelope

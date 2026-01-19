@@ -10,6 +10,10 @@ This Obsidian folder stores canonical freeze notes and governance logs for coord
   - `/C10/C10-FREEZE.md`
   - `/C10/C10-GOVERNANCE.md`
 
+- C11 — Execution Planner
+  - `/C11/C11-FREEZE.md`
+  - `/C11/C11-GOVERNANCE.md`
+
 - Tags: `/TAGS.md`
 
 Guidelines
