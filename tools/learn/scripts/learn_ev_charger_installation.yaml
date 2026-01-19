@@ -1,0 +1,23 @@
+title: "EV charger circuit design & inspection — domestic & small commercial"
+summary: |
+  Focus on design considerations for EV charging points: dedicated circuit selection, RCD considerations, cable sizing, discrimination, and GN3-style test requirements after installation.
+
+sources:
+  - source: "EV installation guidance summary"
+    content: |
+      Typical requirements include a suitably rated dedicated circuit, consideration for dynamic load management, and ensuring protective devices and fault loop impedance meet targets. Installers must follow manufacturer instructions and BS 7671 provisions for EV installations.
+
+questions:
+  - id: Q1
+    ask: "What are the key design checks for a dedicated EV charger circuit (supply, max demand, cable, protective device)?"
+    type: design
+  - id: Q2
+    ask: "Which GN3 test steps confirm an EV charger circuit is safe to energise and hand over?"
+    type: inspection
+  - id: Q3
+    ask: "What special location rules or accessory protections apply (e.g., outdoor charger, IP rating)?"
+    type: special
+
+notes: |
+  - Include safety gates around manufacturer installation instructions and competent electrician sign-off.
+  - Remind that EV charger installations may interact with local building/fire regulations.
