@@ -1,0 +1,23 @@
+title: "Commercial PAT and Fixed Wiring interface"
+summary: |
+  Explore how PAT and in-service inspection results should be integrated with fixed wiring certification and EICR processes in commercial environments, and when PAT failures should trigger fixed wiring investigation.
+
+sources:
+  - source: "Commercial maintenance guidance"
+    content: |
+      Portable appliance testing schedules and fixed wiring periodic inspection should be coordinated. PAT failures that suggest earth leakage or wiring faults must trigger a fixed wiring investigation and possible EICR.
+
+questions:
+  - id: Q1
+    ask: "Under what conditions should PAT failures escalate to a fixed wiring investigation and potentially an EICR?"
+    type: classification
+  - id: Q2
+    ask: "What practical tests link PAT outcomes to wiring integrity (earth leakage trends, consistent RCD trips, common earth faults)?"
+    type: inspection
+  - id: Q3
+    ask: "How should a maintenance manager be advised about remedial priorities and reporting to duty-holders?"
+    type: dutyholder
+
+notes: |
+  - Focus on pragmatic escalation triggers (patterns of failure suggesting wiring fault).  
+  - Ensure proposals include clear steps to isolate equipment and verify wiring safely.

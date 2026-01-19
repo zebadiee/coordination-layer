@@ -10,6 +10,8 @@ SCRIPTS = [
     "tools/learn/scripts/learn_partp_notifiability.yaml",
     "tools/learn/scripts/learn_ev_charger_installation.yaml",
     "tools/learn/scripts/learn_rcd_protection.yaml",
+    "tools/learn/scripts/learn_additional_socket_domestic.yaml",
+    "tools/learn/scripts/learn_commercial_pat_fixed_wiring.yaml",
 ]
 
 
