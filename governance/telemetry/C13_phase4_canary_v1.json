@@ -1,0 +1,14 @@
+{
+  "runs": 50,
+  "workers": 4,
+  "seed": 0,
+  "ok": true,
+  "reasons": [],
+  "unique_trace_hashes": [
+    "f925cc0ac8c40973a5e199dda5ea4fcb85e3897daa0cffbe6fde8529d93b1f1a"
+  ],
+  "failure_count": 0,
+  "wall_time_sec": 0.010600525012705475,
+  "start_rss": 15412,
+  "peak_rss": 17712
+}
