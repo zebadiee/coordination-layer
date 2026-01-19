@@ -1,0 +1,68 @@
+name: phase9-resource-starvation
+
+on:
+  push:
+    branches:
+      - 'phase9/**'
+  workflow_dispatch: {}
+
+jobs:
+  rlimit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest
+
+      - name: Run RLIMIT-based starvation tests
+        run: |
+          python -m pytest -q tools/breaker/phase9/test_resource_starvation.py::test_rlimit_memory_causes_failure -q
+
+  container-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker memory quota test
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace --memory=150m python:3.10-alpine sh -c "apk add --no-cache build-base >/dev/null 2>&1 || true; python -m pip install -e . >/dev/null 2>&1 || true; python tools/breaker/stress_runner.py --smoke --runs 1 || true"
+        continue-on-error: true
+
+  resources-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Run additional starvation checks
+        run: |
+          python -m pytest -q tools/breaker/phase9/test_resource_starvation.py::test_rlimit_cpu_causes_termination -q
+        continue-on-error: true
