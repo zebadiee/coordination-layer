@@ -88,6 +88,11 @@ def execute_envelope(envelope: Dict[str, Any]) -> Dict[str, Any]:
     if "envelope_id" not in envelope or "steps" not in envelope:
         raise ValueError("envelope must contain envelope_id and steps")
 
+    # Validate envelope integrity: recompute expected envelope_id from plan_id and step ids
+    expected_envelope_id = _id_for({"plan_id": envelope.get("plan_id"), "steps": [s.get("id") for s in envelope.get("steps", [])]})
+    if envelope.get("envelope_id") != expected_envelope_id:
+        raise ValueError("envelope_id mismatch: possible tampering or reordered steps")
+
     steps = envelope["steps"]
     if not isinstance(steps, list):
         raise TypeError("envelope.steps must be a list")

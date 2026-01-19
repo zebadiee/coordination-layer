@@ -31,6 +31,12 @@ def build_execution_envelope(plan: Dict[str, Any], adapters: List[Dict[str, Any]
     if not isinstance(plan["nodes"], list):
         raise TypeError("nodes must be a list")
 
+    # Structural validations
+    if len(plan["nodes"]) == 0:
+        raise ValueError("plan.nodes must not be empty")
+    if len(set(plan["nodes"])) != len(plan["nodes"]):
+        raise ValueError("duplicate node ids in plan.nodes")
+
     amap = _adapter_map(adapters)
 
     # Validate nodes
@@ -53,10 +59,11 @@ def build_execution_envelope(plan: Dict[str, Any], adapters: List[Dict[str, Any]
             step["timeout_ms"] = timeout_ms
         steps.append(step)
 
+    plan_id = plan.get("plan_id") or _id_for(plan)
     envelope = {
-        "plan": plan,
+        "plan_id": plan_id,
         "steps": steps,
-        "envelope_id": _id_for({"plan": plan, "steps": [s["node"] for s in steps]}),
+        "envelope_id": _id_for({"plan_id": plan_id, "steps": [s["node"] for s in steps]}),
     }
     return envelope
 
