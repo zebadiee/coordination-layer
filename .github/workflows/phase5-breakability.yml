@@ -1,0 +1,46 @@
+name: phase5-breakability
+
+on:
+  push:
+    branches:
+      - 'phase5/**'
+
+jobs:
+  breakability:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest jsonschema
+
+      - name: Run Phase 5 experiment (example)
+        env:
+          PHASE: 5
+        run: |
+          # This is an example entrypoint for an experiment. Replace with your experiment script.
+          python3 tools/breaker/stress_runner.py --runs 100 --workers 6 --seed 0 --strategy=experimental --output governance/telemetry/C13_phase5_experiment_${{ github.run_id }}.json || true
+
+      - name: Upload telemetry
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-telemetry
+          path: governance/telemetry/
+          if-no-files-found: warn
+
+      - name: Post-summary
+        run: |
+          echo "Phase 5 experiment complete. Telemetry uploaded. Review governance/telemetry for details."
