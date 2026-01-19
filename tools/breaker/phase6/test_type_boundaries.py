@@ -14,10 +14,11 @@ def test_missing_keys_raises():
 
 
 def test_step_not_object_raises():
-    # steps contains a non-dict
-    env = make_envelope([None])
-    with pytest.raises(TypeError):
-        execute_envelope(env)
+    envelope = {"envelope_id": "phase6-type", "plan_id": "p6", "steps": [None]}
+    with pytest.raises(TypeError) as exc:
+        execute_envelope(envelope)
+
+    assert "step[0] must be an object/dict" in str(exc.value)
 
 
 def test_string_where_int_expected_raises():

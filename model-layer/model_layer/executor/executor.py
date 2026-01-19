@@ -91,14 +91,18 @@ def execute_envelope(envelope: Dict[str, Any]) -> Dict[str, Any]:
     # Validate envelope integrity only when envelope_id appears to be a SHA256 hex string.
     # Some tests provide short synthetic IDs (e.g., "e1") — accept those for backwards compatibility.
     envelope_id = envelope.get("envelope_id")
-    expected_envelope_id = _id_for({"plan_id": envelope.get("plan_id"), "steps": [s.get("id") for s in envelope.get("steps", [])]})
+    steps = envelope.get("steps")
+    if not isinstance(steps, list):
+        raise TypeError("envelope.steps must be a list")
+
+    for idx, step in enumerate(steps):
+        if not isinstance(step, dict):
+            raise TypeError(f"step[{idx}] must be an object/dict")
+
+    expected_envelope_id = _id_for({"plan_id": envelope.get("plan_id"), "steps": [s.get("id") for s in steps]})
     if isinstance(envelope_id, str) and len(envelope_id) == 64 and all(c in "0123456789abcdef" for c in envelope_id):
         if envelope_id != expected_envelope_id:
             raise ValueError("envelope_id mismatch: possible tampering or reordered steps")
-
-    steps = envelope["steps"]
-    if not isinstance(steps, list):
-        raise TypeError("envelope.steps must be a list")
 
     trace_steps = []
     groups: Dict[str, List[Dict[str, Any]]] = {}
