@@ -22,7 +22,7 @@ def test_build_envelope_invalid_types():
     with pytest.raises(ValueError):
         build_execution_envelope({"nodes": []}, adapters)
     with pytest.raises(TypeError):
-        build_execution_envelope({"plan_id": "p", "nodes": "notalist"}, adapters)
+        build_execution_envelope({"plan_id": "p", "strategy": "single", "nodes": "notalist"}, adapters)
 
 
 def test_ids_are_deterministic():
