@@ -1,0 +1,38 @@
+{
+  "rules": [
+    {
+      "id": "R411.3.3",
+      "regulation": "411.3.3",
+      "applies_if": [
+        "no rcd",
+        "rcd missing",
+        "no additional protection"
+      ],
+      "code": "C2",
+      "title": "Additional protection by RCD required",
+      "text": "Additional protection by RCD with a rated residual operating current not exceeding 30 mA is required."
+    },
+    {
+      "id": "R643.3",
+      "regulation": "643.3",
+      "applies_if": [
+        "no continuity",
+        "cpc continuity not verified"
+      ],
+      "code": "C2",
+      "title": "Continuity of protective conductors",
+      "text": "Continuity of protective conductors shall be verified."
+    },
+    {
+      "id": "R134.1.1",
+      "regulation": "134.1.1",
+      "applies_if": [
+        "poor workmanship",
+        "non compliant installation"
+      ],
+      "code": "C3",
+      "title": "Good workmanship and proper materials",
+      "text": "Good workmanship and proper materials shall be used."
+    }
+  ]
+}
