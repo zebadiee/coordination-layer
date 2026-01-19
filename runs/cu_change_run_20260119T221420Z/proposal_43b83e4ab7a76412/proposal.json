@@ -1,0 +1,12 @@
+{
+  "reviewer": "operator",
+  "time": "2026-01-19T22:00:27.583553Z",
+  "proposals": [
+    {
+      "claim": "Verifying bonding in accordance with BS 7671 ensures compliance with the regulations.",
+      "status": "needs_review",
+      "reason": null,
+      "sources": null
+    }
+  ]
+}

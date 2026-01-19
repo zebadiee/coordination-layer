@@ -1,0 +1,23 @@
+title: "Additional socket — Domestic (MEIWC vs EIC decision)"
+summary: |
+  Determine when an additional socket on an existing circuit can be certified via Minor Works (MEIWC) vs requiring an EIC, and extract the exact verification steps required in either case.
+
+sources:
+  - source: "GN3 style guidance excerpt"
+    content: |
+      Assess whether the work adds a new circuit or merely a socket on an existing final circuit. If the circuit origin and protective characteristics remain unchanged, a Minor Works Certificate may be appropriate.
+
+questions:
+  - id: Q1
+    ask: "Does the additional socket alter the origin/protective device characteristics or create a new final circuit?"
+    type: classification
+  - id: Q2
+    ask: "List the minimum tests required for an MEIWC on a final circuit modified to add a socket (continuity, insulation, functional checks)."
+    type: inspection
+  - id: Q3
+    ask: "What documentation should be provided to the client to show scope and limitations of the MEIWC?"
+    type: certification
+
+notes: |
+  - Prefer explicit decision rules (MEIWC if no origin change and protective device unaffected).
+  - If in doubt, recommend EIC and document the reason.

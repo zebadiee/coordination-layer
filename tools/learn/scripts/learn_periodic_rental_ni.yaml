@@ -1,0 +1,23 @@
+title: "Periodic inspection of rental properties — Northern Ireland"
+summary: |
+  Extract legal expectations and inspection practices for periodic inspection of rental properties in Northern Ireland, including any statutory periodicity (e.g., 5-year cycles), tenancy safety duties, and recommended EICR-style checks.
+
+sources:
+  - source: "NI tenancy guidance summary"
+    content: |
+      In Northern Ireland certain tenancy regulations and guidance recommend periodic checks for electrical safety, often with specific intervals for private tenancies. Confirm with current NI guidance for mandatory intervals and reporting standards.
+
+questions:
+  - id: Q1
+    ask: "Is a 5-year inspection interval mandatory in NI for private tenancies, and where is this required?"
+    type: legal
+  - id: Q2
+    ask: "Which tests and checks should an inspector prioritise for rental property inspections?"
+    type: inspection
+  - id: Q3
+    ask: "How should observations be coded for tenancy reports and what evidence is required for enforcement?"
+    type: certification
+
+notes: |
+  - Emphasise verifying current NI statutory guidance; do not assert intervals without verifying current regulation.
+  - Focus on tenancy risk factors (age of installation, previous remedial works, landlord responsibilities).

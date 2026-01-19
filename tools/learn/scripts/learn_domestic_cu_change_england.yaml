@@ -1,0 +1,26 @@
+title: "Domestic consumer unit (CU) change — England (Part P considerations)"
+summary: |
+  Learn the regulatory and standards considerations for replacing/upgrading a domestic consumer unit (CU) in England. Focus on Part P notifiability, competent person schemes, relevant inspection and certification (Minor Works vs Full EIC), and testing sequences.
+
+sources:
+  - source: "Local guidance summary"
+    content: |
+      Replacing a consumer unit in a domestic dwelling often involves notifiable work under Building Regulations Part P unless carried out by a registered competent person under an approved scheme. Test requirements include verifying bonding, protective devices, insulation/continuity tests, and a final certificate (EIC or Minor Works Certificate) as applicable.
+
+questions:
+  - id: Q1
+    ask: "Under what circumstances does replacing a CU trigger Part P notifiability, and when can it be registered via 'competent person' scheme?"
+    type: legal
+  - id: Q2
+    ask: "What tests are essential after a CU change (continuity, insulation, R1+R2, RCD tests, functional tests)?"
+    type: inspection
+  - id: Q3
+    ask: "What documentation (forms) should be issued and who signs them?"
+    type: certification
+  - id: Q4
+    ask: "What key safety gates should an inspector use to stop work or require rework?"
+    type: safety
+
+notes: |
+  - Explicitly reference Part P as a regulator-level requirement in England; check local LA routes for compliance.
+  - Do not paste literal BS 7671 clauses; summarise and direct to official documents for exact wording.

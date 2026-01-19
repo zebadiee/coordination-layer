@@ -1,0 +1,5 @@
+{
+  "mode": "json",
+  "system": "You are a local electrical inspection extraction worker. Do not invent values. Only extract what is present.",
+  "prompt": "From the following OCR text, extract electrical inspection data into the TACQO schema. Use null where unknown. Output valid JSON only."
+}

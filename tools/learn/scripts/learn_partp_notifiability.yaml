@@ -1,0 +1,23 @@
+title: "Part P notifiability decision logic (England & Wales)"
+summary: |
+  Create a canonical decision tree for whether domestic electrical work is notifiable under Part P, including exemptions, routes to compliance (competent person schemes), and documentation.
+
+sources:
+  - source: "Part P guidance summary"
+    content: |
+      Notifiable work generally includes new circuits, additions and alterations to existing circuits in dwellings; specific exceptions apply. Notification can be made via the local authority or a registered competent person scheme.
+
+questions:
+  - id: Q1
+    ask: "List the types of domestic electrical work that typically require notification under Part P."
+    type: definition
+  - id: Q2
+    ask: "What constitutes an exemptible minor change and how should a decision be recorded?"
+    type: procedural
+  - id: Q3
+    ask: "Draft a CLI decision tree (yes/no sequence) to determine notifiability for a given job, which will be used to implement a Part P checker."
+    type: developer
+
+notes: |
+  - The output should be suitable for conversion into a small CLI: ask about premises type, scope of work, and registration status.
+  - Always instruct to confirm via local authority or the official Part P guidance for edge cases.

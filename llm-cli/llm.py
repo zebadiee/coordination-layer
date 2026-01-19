@@ -13,6 +13,7 @@ import json
 import sys
 import time
 import uuid
+import os
 from datetime import datetime
 
 import requests
@@ -20,8 +21,38 @@ from pathlib import Path
 
 OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 
-AUDIT_PATH = Path(__file__).parent / "audit.log"
+# Allow overriding the audit path via environment for tests/CI
+AUDIT_PATH = Path(os.environ.get("LLM_AUDIT_PATH", Path(__file__).parent / "audit.log"))
+# Sessions dir (append-only jsonl files per profile). Override with LLM_SESSION_DIR for tests/CI
+SESSION_DIR = Path(os.environ.get("LLM_SESSION_DIR", Path.home() / ".llm-cli" / "sessions"))
 STDIN_BUFFER = None
+
+def write_session(profile: str, entry: dict):
+    try:
+        SESSION_DIR.mkdir(parents=True, exist_ok=True)
+        fn = SESSION_DIR / f"{profile or 'default'}.jsonl"
+        with fn.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry, separators=(",", ":")) + "\n")
+    except Exception:
+        # Session logging must not break the CLI
+        pass
+
+# Minimal profile definitions; can be extended to a JSON file if needed
+PROFILES = {
+    "inspector": {
+        "system": "You are a local electrical inspection worker. Extract facts, do not invent values.",
+        "model": "gemma:2b",
+    },
+    "sherlock": {
+        "system": "You are Sherlock, a read-only auditor. Explain why things happened, do not execute.",
+        "model": "gemma:2b",
+    },
+    "planner": {
+        "system": "You are a planner assistant. Provide stepwise options without changing system state.",
+        "model": "gemma:2b",
+    }
+}
+
 
 def write_audit(entry: dict):
     # Minimal, append-only audit trail.
@@ -70,14 +101,17 @@ def sha256_hex(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 
-def make_metadata(prompt: str, model: str):
-    return {
+def make_metadata(prompt: str, model: str, profile: str = None):
+    meta = {
         "request_id": str(uuid.uuid4()),
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "model": model,
         "prompt_hash": sha256_hex(prompt),
         "prompt_len": len(prompt),
     }
+    if profile:
+        meta["profile"] = profile
+    return meta
 
 
 def json_input_from_args(args):
@@ -123,12 +157,31 @@ def handle_json_mode(args):
         raise LLMError("'prompt' field must be a string")
 
     prompt = data["prompt"]
-    model = args.model
+    profile = getattr(args, "profile", None)
 
-    meta = make_metadata(prompt, model)
+    # If profile selected, use its system guard and default model unless overridden
+    if profile and profile in PROFILES:
+        prof = PROFILES[profile]
+        model = prof.get("model", args.model)
+        # prepend the profile system to the global system guard to enforce role
+        system_override = prof.get("system")
+    else:
+        model = args.model
+        system_override = None
+
+    meta = make_metadata(prompt, model, profile=profile)
 
     # Call LLM (non-streaming for JSON mode)
-    response = call_llm(prompt, model=model, stream=False)
+    # If there's a profile-specific system override, inject it into the call by
+    # temporarily setting SYSTEM_GUARD; ensure we restore it
+    global SYSTEM_GUARD
+    old_system = SYSTEM_GUARD
+    if system_override:
+        SYSTEM_GUARD = system_override + " " + old_system
+    try:
+        response = call_llm(prompt, model=model, stream=False)
+    finally:
+        SYSTEM_GUARD = old_system
 
     out = {
         "request": meta,
@@ -143,10 +196,25 @@ def handle_json_mode(args):
             "prompt_hash": meta.get("prompt_hash"),
             "model": model,
             "mode": "json",
+            "profile": profile,
             "ok": True,
         })
     except Exception:
         # Audit must not break CLI
+        pass
+
+    # Optional session logging (append-only per profile)
+    try:
+        if getattr(args, "session", False):
+            entry = {
+                "ts": datetime.utcnow().isoformat() + "Z",
+                "prompt_hash": meta.get("prompt_hash"),
+                "prompt": prompt,
+                "response": response,
+                "profile": profile or "default",
+            }
+            write_session(profile or "default", entry)
+    except Exception:
         pass
 
     print(json.dumps(out, ensure_ascii=False))
@@ -156,6 +224,8 @@ def main():
     ap = argparse.ArgumentParser(prog="llm")
     ap.add_argument("prompt", nargs="*", help="Prompt text")
     ap.add_argument("-m", "--model", default="gemma:2b")
+    ap.add_argument("--profile", choices=list(PROFILES.keys()), help="Named profile to apply (inspector, sherlock, planner)")
+    ap.add_argument("--session", action="store_true", help="Append this request/response to a profile session file (append-only)")
     ap.add_argument("--stream", action="store_true", help="Stream responses (not supported with --json)")
     ap.add_argument("--json", action="store_true", help="JSON in / JSON out mode: accept JSON via stdin or --input-file and emit JSON")
     ap.add_argument("--input-file", help="Path to JSON input file")

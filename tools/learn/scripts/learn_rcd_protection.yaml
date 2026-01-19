@@ -1,0 +1,16 @@
+title: "BS 7671 RCD protection – domestic sockets"
+sources:
+  - source: "IET Guidance Note 3"
+    url: "file://tools/learn/scripts/samples/IET_GN3_excerpt.txt"
+  - source: "BS7671 excerpt"
+    content: "Regulation 411.3.3: Additional protection by RCD with a rated residual current not exceeding 30 mA is required where specified."
+questions:
+  - id: Q1
+    type: definition
+    ask: "What does BS 7671 require for RCD protection on socket outlets?"
+  - id: Q2
+    type: scope
+    ask: "Which socket circuits require 30mA RCD protection and which are exempt?"
+  - id: Q3
+    type: regulation
+    ask: "Which regulation numbers apply and what do they state verbatim?"
