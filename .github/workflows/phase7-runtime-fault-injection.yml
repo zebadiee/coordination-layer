@@ -1,0 +1,49 @@
+name: phase7-runtime-fault-injection
+
+on:
+  push:
+    branches:
+      - 'phase7/**'
+  workflow_dispatch: {}
+
+jobs:
+  runtime-faults:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install deps (editable)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest
+
+      - name: Run runtime fault tests
+        run: |
+          python -m pytest -q tools/breaker/phase7/test_runtime_faults.py -q
+        # Phase 7 is adversarial; allow failures but capture output
+        continue-on-error: true
+
+  alpine-minimal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pull alpine and run quick smoke in container
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace python:3.10-alpine sh -c "apk add --no-cache build-base; python -m pip install -e . || true; python -m pytest -q tools/breaker/phase7/test_runtime_faults.py -q" 
+        continue-on-error: true
