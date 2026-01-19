@@ -1,0 +1,43 @@
+name: phase10-time-skew
+
+on:
+  push:
+    branches:
+      - 'phase10/**'
+  workflow_dispatch: {}
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest
+
+      - name: Run time-skew tests
+        run: |
+          python -m pytest -q tools/breaker/phase10/test_time_skew.py -q
+
+  container-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker Alpine smoke (time behavior)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace python:3.10-alpine sh -c "apk add --no-cache build-base >/dev/null 2>&1 || true; python -m pip install -e . >/dev/null 2>&1 || true; python -m pytest -q tools/breaker/phase10/test_time_skew.py::test_execute_invariant_under_time_skew -q" 
+        continue-on-error: true
