@@ -57,13 +57,16 @@ def build_execution_envelope(plan: Dict[str, Any], adapters: List[Dict[str, Any]
         }
         if timeout_ms is not None:
             step["timeout_ms"] = timeout_ms
+        # deterministic per-step id
+        step_id = _id_for(step)
+        step["id"] = step_id
         steps.append(step)
 
     plan_id = plan.get("plan_id") or _id_for(plan)
     envelope = {
         "plan_id": plan_id,
         "steps": steps,
-        "envelope_id": _id_for({"plan_id": plan_id, "steps": [s["node"] for s in steps]}),
+        "envelope_id": _id_for({"plan_id": plan_id, "steps": [s["id"] for s in steps]}),
     }
     return envelope
 
