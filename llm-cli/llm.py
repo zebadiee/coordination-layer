@@ -23,7 +23,19 @@ OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 
 # Allow overriding the audit path via environment for tests/CI
 AUDIT_PATH = Path(os.environ.get("LLM_AUDIT_PATH", Path(__file__).parent / "audit.log"))
+# Sessions dir (append-only jsonl files per profile). Override with LLM_SESSION_DIR for tests/CI
+SESSION_DIR = Path(os.environ.get("LLM_SESSION_DIR", Path.home() / ".llm-cli" / "sessions"))
 STDIN_BUFFER = None
+
+def write_session(profile: str, entry: dict):
+    try:
+        SESSION_DIR.mkdir(parents=True, exist_ok=True)
+        fn = SESSION_DIR / f"{profile or 'default'}.jsonl"
+        with fn.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry, separators=(",", ":")) + "\n")
+    except Exception:
+        # Session logging must not break the CLI
+        pass
 
 # Minimal profile definitions; can be extended to a JSON file if needed
 PROFILES = {
@@ -191,6 +203,20 @@ def handle_json_mode(args):
         # Audit must not break CLI
         pass
 
+    # Optional session logging (append-only per profile)
+    try:
+        if getattr(args, "session", False):
+            entry = {
+                "ts": datetime.utcnow().isoformat() + "Z",
+                "prompt_hash": meta.get("prompt_hash"),
+                "prompt": prompt,
+                "response": response,
+                "profile": profile or "default",
+            }
+            write_session(profile or "default", entry)
+    except Exception:
+        pass
+
     print(json.dumps(out, ensure_ascii=False))
 
 
@@ -199,6 +225,7 @@ def main():
     ap.add_argument("prompt", nargs="*", help="Prompt text")
     ap.add_argument("-m", "--model", default="gemma:2b")
     ap.add_argument("--profile", choices=list(PROFILES.keys()), help="Named profile to apply (inspector, sherlock, planner)")
+    ap.add_argument("--session", action="store_true", help="Append this request/response to a profile session file (append-only)")
     ap.add_argument("--stream", action="store_true", help="Stream responses (not supported with --json)")
     ap.add_argument("--json", action="store_true", help="JSON in / JSON out mode: accept JSON via stdin or --input-file and emit JSON")
     ap.add_argument("--input-file", help="Path to JSON input file")
