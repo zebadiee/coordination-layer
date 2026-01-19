@@ -107,11 +107,28 @@ def execute_envelope(envelope: Dict[str, Any]) -> Dict[str, Any]:
     trace_steps = []
     groups: Dict[str, List[Dict[str, Any]]] = {}
 
-    # Execute steps in order
-    for step in steps:
+    # Defensive snapshotting: deep-copy payloads in reverse order so that
+    # mutable payloads that attempt to mutate shared targets during
+    # serialization/copying do not affect snapshots of later steps.
+    import copy as _copy
+
+    n = len(steps)
+    _snapshots = [None] * n
+    for i in range(n - 1, -1, -1):
+        st = steps[i]
+        # do not call into mapping methods earlier than necessary; we still use deepcopy
+        # which may have side-effects, but doing it reverse minimizes cross-step leakage
+        if isinstance(st, dict) and "payload" in st:
+            _snapshots[i] = _copy.deepcopy(st.get("payload"))
+
+    # Execute steps in forward order using the precomputed snapshots
+    for idx, step in enumerate(steps):
         if not isinstance(step, dict):
             raise TypeError("each step must be an object")
-        s = _simulate_step(step)
+        safe_step = dict(step)
+        if "payload" in safe_step:
+            safe_step["payload"] = _snapshots[idx]
+        s = _simulate_step(safe_step)
         trace_steps.append(s)
         gid = s.get("group")
         if gid:
