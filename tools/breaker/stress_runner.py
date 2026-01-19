@@ -96,6 +96,7 @@ def main() -> None:
     p.add_argument("--fanout", type=int, default=1)
     p.add_argument("--quorum", type=int, default=0)
     p.add_argument("--smoke", action="store_true", help="run a small smoke workload and exit")
+    p.add_argument("--output", type=str, default=None, help="file path to write summary JSON")
     args = p.parse_args()
 
     if args.smoke:
@@ -109,6 +110,14 @@ def main() -> None:
     summary = run_stress(args.runs, args.workers, args.seed, args.prompt, adapters, args.strategy, args.fanout, args.quorum)
 
     print("Summary:", json.dumps(summary, indent=2))
+
+    # persist telemetry if requested
+    if args.output:
+        import os
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        with open(args.output, "w") as f:
+            json.dump(summary, f, indent=2)
+        print(f"Wrote telemetry to {args.output}")
 
     if not summary["ok"]:
         raise SystemExit(2)
