@@ -30,3 +30,9 @@ Governance
 ----------
 - Tag findings as `phase7-<short-desc>-drift` for expected failures and `phase7-<short-desc>-stable` when hardened.
 - Record all Phase 7 results in `governance/Phase_4_to_6_Validation_Log.md` or a new Phase 7 log as appropriate.
+
+Finding: `stress_runner.py` imported `model_layer` at module import time and therefore did not fail when `PYTHONPATH` was cleared in an environment where `model_layer` was installed system-wide. This masked an operational boundary.
+
+Resolution: `stress_runner.py` now performs an explicit runtime dependency check and exits with a clear error message when `model_layer` is not importable. This enforces fail-fast behavior and makes the Phase 7 tests meaningful across environments.
+
+Status: Fix implemented and testable; tag: `phase7-runtime-dependency-stable` planned upon validation.

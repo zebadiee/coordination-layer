@@ -11,9 +11,27 @@ import resource
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Tuple
 
-from model_layer.planner.planner import build_execution_plan
-from model_layer.orchestrator.orchestrator import build_execution_envelope
-from model_layer.executor.executor import execute_envelope
+# --- runtime dependency check ---
+import os
+try:
+    from model_layer.planner.planner import build_execution_plan
+    from model_layer.orchestrator.orchestrator import build_execution_envelope
+    from model_layer.executor.executor import execute_envelope
+    # Ensure the imported module resolves to the local project, not an external site-packages install.
+    import importlib
+    _ml = importlib.import_module("model_layer")
+    _ml_file = getattr(_ml, "__file__", None)
+    if not _ml_file or os.getcwd() not in os.path.abspath(_ml_file):
+        raise SystemExit(
+            "FATAL: model_layer resolved outside project tree. Ensure the local package is installed or PYTHONPATH is set to the project.\n"
+            f"Resolved to: {_ml_file!r}"
+        )
+except Exception as _e:
+    raise SystemExit(
+        "FATAL: model_layer is not available at runtime. Ensure the package is installed and importable.\n"
+        f"Original error: {_e!r}"
+    )
+# --- end runtime dependency check ---
 
 
 def _canonical(obj: Any) -> str:
