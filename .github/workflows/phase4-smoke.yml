@@ -1,0 +1,32 @@
+name: phase4-smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - 'model-layer/**'
+      - '.github/workflows/**'
+
+jobs:
+  phase4-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install deps
+        run: python -m pip install -e . && python -m pip install --upgrade pip pytest jsonschema
+      - name: Ensure telemetry dir
+        run: mkdir -p governance/telemetry
+      - name: Run Phase 4 smoke canary
+        run: python3 tools/breaker/stress_runner.py --smoke --runs 50 --workers 4 --seed 0 --output governance/telemetry/C13_phase4_smoke_${{ github.run_id }}.json
+      - name: Upload telemetry artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-smoke-telemetry
+          path: governance/telemetry/C13_phase4_smoke_${{ github.run_id }}.json

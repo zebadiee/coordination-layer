@@ -1,11 +1,13 @@
 import pytest
 
-from model_layer.orchestrator.orchestrator import build_envelope
+from model_layer.orchestrator.orchestrator import build_execution_envelope
 
 
 def test_build_envelope_happy_path():
-    plan = {"plan_id": "p1", "steps": [{"type": "invoke", "adapter": "a", "payload": {"x": 1}}]}
-    env = build_envelope(plan)
+    plan = {"plan_id": "p1", "strategy": "single", "nodes": ["a"]}
+    adapters = [{"adapter_id": "a", "capabilities": {}}]
+    env = build_execution_envelope(plan, adapters)
+
     assert env["plan_id"] == "p1"
     assert "envelope_id" in env
     assert len(env["steps"]) == 1
@@ -14,18 +16,19 @@ def test_build_envelope_happy_path():
 
 
 def test_build_envelope_invalid_types():
+    adapters = [{"adapter_id": "a", "capabilities": {}}]
     with pytest.raises(TypeError):
-        build_envelope(None)
+        build_execution_envelope(None, adapters)
     with pytest.raises(ValueError):
-        build_envelope({"steps": []})
+        build_execution_envelope({"nodes": []}, adapters)
     with pytest.raises(TypeError):
-        build_envelope({"plan_id": "p", "steps": "notalist"})
+        build_execution_envelope({"plan_id": "p", "strategy": "single", "nodes": "notalist"}, adapters)
 
 
 def test_ids_are_deterministic():
-    step = {"type": "invoke", "adapter": "a", "payload": {"x": 1}}
-    plan1 = {"plan_id": "p1", "steps": [step]}
-    plan2 = {"plan_id": "p1", "steps": [step]}
-    e1 = build_envelope(plan1)
-    e2 = build_envelope(plan2)
+    plan1 = {"plan_id": "p1", "strategy": "single", "nodes": ["a"]}
+    plan2 = {"plan_id": "p1", "strategy": "single", "nodes": ["a"]}
+    adapters = [{"adapter_id": "a", "capabilities": {}}]
+    e1 = build_execution_envelope(plan1, adapters)
+    e2 = build_execution_envelope(plan2, adapters)
     assert e1["steps"][0]["id"] == e2["steps"][0]["id"]
