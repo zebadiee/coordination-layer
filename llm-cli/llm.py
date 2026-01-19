@@ -16,8 +16,17 @@ import uuid
 from datetime import datetime
 
 import requests
+from pathlib import Path
 
 OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
+
+AUDIT_PATH = Path(__file__).parent / "audit.log"
+STDIN_BUFFER = None
+
+def write_audit(entry: dict):
+    # Minimal, append-only audit trail.
+    with AUDIT_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, separators=(",", ":")) + "\n")
 
 SYSTEM_GUARD = (
     "You are a local inference worker. "
@@ -80,7 +89,15 @@ def json_input_from_args(args):
         except Exception as e:
             raise LLMError(f"failed to read input file: {e}")
 
-    # Stdin
+    # Stdin (supports pre-read buffer for autodetect)
+    if STDIN_BUFFER is not None:
+        raw = STDIN_BUFFER
+        if raw.strip():
+            try:
+                return json.loads(raw)
+            except Exception as e:
+                raise LLMError(f"failed to parse JSON from stdin (buffer): {e}")
+
     if not sys.stdin.isatty():
         raw = sys.stdin.read()
         if raw.strip():
@@ -119,6 +136,19 @@ def handle_json_mode(args):
         "status": "ok",
     }
 
+    # Audit success
+    try:
+        write_audit({
+            "ts": datetime.utcnow().isoformat() + "Z",
+            "prompt_hash": meta.get("prompt_hash"),
+            "model": model,
+            "mode": "json",
+            "ok": True,
+        })
+    except Exception:
+        # Audit must not break CLI
+        pass
+
     print(json.dumps(out, ensure_ascii=False))
 
 
@@ -132,6 +162,15 @@ def main():
     args = ap.parse_args()
 
     try:
+        # Autodetect JSON on stdin if it begins with '{' and --json not provided
+        if not args.json and not sys.stdin.isatty():
+            raw = sys.stdin.read()
+            if raw.strip().startswith("{"):
+                # set buffer for downstream parsing and treat as JSON mode
+                global STDIN_BUFFER
+                STDIN_BUFFER = raw
+                args.json = True
+
         if args.json:
             if args.stream:
                 raise LLMError("streaming is not supported with --json mode")
@@ -150,9 +189,54 @@ def main():
             out = call_llm(prompt, model=args.model, stream=False)
             print(out)
     except LLMError as e:
+        # Attempt to capture prompt_hash for audit if possible
+        try:
+            prompt_hash = None
+            if args.json:
+                try:
+                    data = json_input_from_args(args)
+                    prompt_hash = sha256_hex(data.get("prompt", ""))
+                except Exception:
+                    prompt_hash = None
+            elif args.prompt:
+                prompt_hash = sha256_hex(" ".join(args.prompt))
+        except Exception:
+            prompt_hash = None
+
+        try:
+            write_audit({
+                "ts": datetime.utcnow().isoformat() + "Z",
+                "prompt_hash": prompt_hash,
+                "model": getattr(args, "model", None),
+                "mode": "json" if getattr(args, "json", False) else "text",
+                "ok": False,
+                "error": str(e),
+            })
+        except Exception:
+            pass
+
         print(json.dumps({"status": "error", "message": str(e)}), file=sys.stderr)
         sys.exit(2)
     except Exception as e:
+        try:
+            prompt_hash = None
+            if getattr(args, "prompt", None):
+                prompt_hash = sha256_hex(" ".join(args.prompt))
+        except Exception:
+            prompt_hash = None
+
+        try:
+            write_audit({
+                "ts": datetime.utcnow().isoformat() + "Z",
+                "prompt_hash": prompt_hash,
+                "model": getattr(args, "model", None),
+                "mode": "json" if getattr(args, "json", False) else "text",
+                "ok": False,
+                "error": str(e),
+            })
+        except Exception:
+            pass
+
         print(json.dumps({"status": "error", "message": str(e)}), file=sys.stderr)
         sys.exit(3)
 
