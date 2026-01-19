@@ -94,6 +94,8 @@ def execute_envelope(envelope: Dict[str, Any]) -> Dict[str, Any]:
     steps = envelope.get("steps")
     if not isinstance(steps, list):
         raise TypeError("envelope.steps must be a list")
+    if len(steps) == 0:
+        raise ValueError("envelope.steps must not be empty")
 
     for idx, step in enumerate(steps):
         if not isinstance(step, dict):
