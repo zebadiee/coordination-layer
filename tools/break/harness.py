@@ -85,7 +85,10 @@ def phase2_invalid(case: str) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("cmd", choices=["tag-baseline", "phase1", "phase2"])
+    p.add_argument("cmd", choices=["tag-baseline", "phase1", "phase2", "phase3"])
+    p.add_argument("--runs", type=int, default=1000)
+    p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--seed", type=int, default=0)
     p.add_argument("--repeat", type=int, default=10)
     p.add_argument("--case", type=str, default="missing_steps")
     args = p.parse_args()
@@ -96,6 +99,14 @@ def main() -> None:
         phase1_golden(args.repeat)
     elif args.cmd == "phase2":
         phase2_invalid(args.case)
+    elif args.cmd == "phase3":
+        from tools.breaker.stress_runner import run_stress
+        adapters = [{"adapter_id": "a1", "capabilities": {"text": True}}]
+        # run a smoke-sized runner unless user asks for more
+        runs = args.runs
+        workers = args.workers
+        seed = args.seed
+        run_stress(runs=runs, workers=workers, seed=seed, prompt="stress", adapters=adapters, strategy="single", fanout=1, quorum=0)
 
 
 if __name__ == "__main__":
