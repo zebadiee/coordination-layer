@@ -1,0 +1,19 @@
+{
+  "roles": {
+    "observer": {
+      "capabilities": [
+        "read_logs",
+        "read_health"
+      ],
+      "write": false
+    },
+    "worker": {
+      "capabilities": [
+        "llm_call",
+        "compute"
+      ],
+      "write": false
+    }
+  },
+  "max_time_drift_seconds": 300
+}
