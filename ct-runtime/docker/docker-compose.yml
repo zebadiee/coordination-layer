@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  observer:
+    build: ./observer
+    container_name: ct-observer-01
+    read_only: true
+    network_mode: host
+    environment:
+      - CT_HANDSHAKE_URL=http://127.0.0.1:7778/agent/register
+      - HEALTH_PORT=8080
+    restart: unless-stopped

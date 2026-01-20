@@ -1,0 +1,8 @@
+agent_id: observer-01
+role: observer
+capabilities:
+  - read_logs
+  - read_health
+permissions:
+  write: false
+authority_required: false
