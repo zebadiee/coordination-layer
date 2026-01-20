@@ -5,6 +5,7 @@
   "proposal_json": "proposal.json",
   "proposal_note": "proposal_note.md",
   "reviewer": "operator",
+  "requested_reviewers": ["electrical-team","compliance","governance"],
   "labels": ["proposal","needs-review","guidance"],
   "created_at": "2026-01-19T22:00:27.583553Z"
 }

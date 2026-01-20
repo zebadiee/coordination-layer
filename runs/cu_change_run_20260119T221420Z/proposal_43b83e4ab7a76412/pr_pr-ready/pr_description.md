@@ -44,6 +44,14 @@ This proposal packages a human-approved capture into a formal guidance artifact 
 - compliance-team  
 - governance
 
+**Requested reviewers for PR:** `electrical-team`, `compliance`, `governance`
+
+## Review checklist
+
+- [ ] Technical accuracy (electrical-team): confirm the guidance is technically correct and non-prescriptive.
+- [ ] Regulatory alignment (compliance): confirm the guidance does not conflict with statutory requirements and is clearly non-normative.
+- [ ] Governance approval (governance): confirm acceptance into the guidance namespace and that acceptance criteria are met.
+
 ## Labels
 
 - proposal  

@@ -5,8 +5,13 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import requests
 import os
 import tempfile
+from pathlib import Path
+import importlib.util
 
-from ct_runtime.ct_server import agent_register as ar
+# Load the module directly (tests run without package installation)
+_spec = importlib.util.spec_from_file_location("agent_register", str(Path(__file__).parent / ".." / "agent_register.py"))
+ar = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(ar)
 
 
 def start_server(port, allowlist_path, audit_path, accepted_path):
