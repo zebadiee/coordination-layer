@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)/.."
+# Resolve repository root deterministically (script lives in ct-runtime/ct_server/deploy)
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 ENV_SRC="$REPO_ROOT/ct-runtime/ct_server/deploy/ct-agent-register.env"
 UNIT_SRC="$REPO_ROOT/ct-runtime/ct_server/deploy/ct-agent-register.service"
 LOGROT_SRC="$REPO_ROOT/ct-runtime/ct_server/deploy/logrotate.ct-agent"
@@ -9,6 +10,12 @@ LOGROT_SRC="$REPO_ROOT/ct-runtime/ct_server/deploy/logrotate.ct-agent"
 DEST_ENV="/etc/ct/agent-register.env"
 DEST_UNIT="/etc/systemd/system/ct-agent-register.service"
 DEST_LOGROT="/etc/logrotate.d/ct-agent"
+
+# Runtime user/group and directories
+CT_USER="ct"
+CT_GROUP="ct"
+LOG_DIR="/var/log/ct-agent"
+CONF_DIR="/etc/ct"
 
 DRY_RUN=1
 ASSUME_YES=0
@@ -74,10 +81,10 @@ fi
 
 # Step 2: create directories
 echo "\n[ct-agent] Step 2: create directories and set ownership"
-echo " - /var/lib/ct, /var/log/ct, /etc/ct"
+echo " - /var/lib/ct, $LOG_DIR, /etc/ct"
 if [ "$DRY_RUN" -eq 0 ]; then
-  sudo mkdir -p /var/lib/ct /var/log/ct /etc/ct
-  sudo chown -R ct:ct /var/lib/ct /var/log/ct /etc/ct
+  sudo mkdir -p /var/lib/ct "$LOG_DIR" "$CONF_DIR"
+  sudo chown -R "$CT_USER:$CT_GROUP" /var/lib/ct "$LOG_DIR" "$CONF_DIR"
 fi
 
 # Step 3: install env file
@@ -128,8 +135,8 @@ Check the following:
  - The unit is active and not in a restart loop: systemctl status ct-agent-register
  - Port is listening: ss -lntp | grep 7778
  - Logs: journalctl -u ct-agent-register -n 200 --no-pager
- - Audit files: ls -l /var/log/ct
- - Re-register observer: run observer and confirm ACCEPTED entry in /var/log/ct/registrations.log
+ - Audit files: ls -l /var/log/ct-agent
+ - Re-register observer: run observer and confirm ACCEPTED entry in /var/log/ct-agent/registrations.log
 VER
 
 if [ "$DRY_RUN" -eq 1 ]; then

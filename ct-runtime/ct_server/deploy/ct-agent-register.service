@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
+EnvironmentFile=/etc/ct/agent-register.env
 User=ct
 Group=ct
 WorkingDirectory=/opt/coordination-layer
