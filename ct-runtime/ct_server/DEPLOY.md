@@ -53,6 +53,24 @@ Acceptance criteria
 - Audit files are created under `/var/log/ct-agent` and rotate via `logrotate`.
 - Health checks for observer agents continue to function; denied registrations only create audit entries and do not cause side effects.
 
+Apply script
+------------
+A one-shot apply script is included for guarded, auditable application on the authority node:
+
+`ct-runtime/ct_server/deploy/apply_ct_agent.sh`
+
+Run first as a dry-run to inspect proposed changes:
+
+```bash
+./ct-runtime/ct_server/deploy/apply_ct_agent.sh
+```
+
+Then run with `--apply` to perform the operations (it will prompt before destructive actions):
+
+```bash
+sudo ./ct-runtime/ct_server/deploy/apply_ct_agent.sh --apply
+```
+
 Notes & Governance
 ------------------
 - Keep `ALLOWLIST_PATH` under the authority's control and treat changes as governance events.
