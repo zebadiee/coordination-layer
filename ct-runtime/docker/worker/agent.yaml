@@ -1,0 +1,5 @@
+agent_id: worker-01
+role: worker
+capabilities:
+  - execute_task
+  - report_status
