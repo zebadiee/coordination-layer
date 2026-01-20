@@ -1,0 +1,12 @@
+/var/log/ct-agent/*.log /var/log/ct-agent/accepted.jsonl {
+    daily
+    rotate 14
+    compress
+    missingok
+    notifempty
+    create 0640 ct ct
+    sharedscripts
+    postrotate
+        systemctl try-restart ct-agent-register > /dev/null 2>/dev/null || true
+    endscript
+}

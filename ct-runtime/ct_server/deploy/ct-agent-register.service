@@ -1,0 +1,22 @@
+[Unit]
+Description=CT Agent Register Service
+After=network.target
+
+[Service]
+Type=simple
+User=ct
+Group=ct
+WorkingDirectory=/opt/coordination-layer
+ExecStart=/usr/bin/env python3 /opt/coordination-layer/ct-runtime/ct_server/agent_register.py
+Environment=ALLOWLIST_PATH=/opt/coordination-layer/ct-runtime/ct_server/allowlist.json
+Environment=REGISTRATIONS_AUDIT=/var/log/ct-agent/registrations.log
+Environment=ACCEPTED_REGISTRATIONS=/var/log/ct-agent/accepted.jsonl
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60
+SyslogIdentifier=ct-agent-register
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
