@@ -1,0 +1,14 @@
+[Unit]
+Description=MAD-OS HUD Interface
+After=network.target mad-os-exo.service
+
+[Service]
+Type=exec
+User=zebadiee
+WorkingDirectory=/home/zebadiee
+ExecStart=/home/zebadiee/scripts/start_mad_os_stack.sh hud
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
