@@ -175,22 +175,49 @@ def cmd_stack_status(args):
             "timestamp": last_audit["ts"]
         }
 
-    # Check ports
+    # Check ports and adapter-driven health
+    try:
+        from mad_os.adapters import exo_adapter
+    except Exception:
+        exo_adapter = None
+
     for name, port in [("exo", 8000), ("hud", 8501)]:
         result = subprocess.run(["lsof", "-i", f":{port}"], capture_output=True, text=True)
         running = result.returncode == 0
         pid = None
         if running:
-            lines = result.stdout.strip().split('\n')
+            lines = result.stdout.strip().split('
+')
             if len(lines) > 1:
                 parts = lines[1].split()
                 if len(parts) > 1:
-                    pid = int(parts[1])
-        data["stack"][name] = {
+                    try:
+                        pid = int(parts[1])
+                    except Exception:
+                        pid = None
+        entry = {
             "running": running,
             "pid": pid,
-            "port": port
+            "port": port,
         }
+
+        # Exo: enrich with contract-driven metadata and health probe
+        if name == "exo" and exo_adapter is not None:
+            try:
+                contract = exo_adapter.load_contract()
+            except Exception:
+                contract = {}
+            entry["capabilities"] = contract.get("capabilities", [])
+            entry["version"] = contract.get("version")
+            try:
+                entry["healthy"] = exo_adapter.is_healthy(port=port)
+            except Exception:
+                entry["healthy"] = False
+        else:
+            # For HUD we treat listening == healthy at this level
+            entry["healthy"] = running
+
+        data["stack"][name] = entry
 
     if getattr(args, 'json', False):
         print(json.dumps(data, indent=2))
