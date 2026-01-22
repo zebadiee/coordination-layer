@@ -238,6 +238,84 @@ def cmd_stack_status(args):
     else:
         print("🔍 MAD-OS stack status\n")
 
+
+# Runtime status command
+def cmd_runtime_status(args):
+    _audit(action="runtime.status", details={})
+
+    try:
+        from mad_os.runtime.status import runtime_status
+        data = runtime_status()
+    except Exception as e:
+        print(f"❌ Failed to obtain runtime status: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    if getattr(args, 'json', False):
+        print(json.dumps(data, indent=2))
+    else:
+        print("🔍 MAD-OS runtime status\n")
+        print(f"State: {data.get('state')}")
+        print("Activated:")
+        for name, result in data.get('activated', []):
+            print(f"  • {name}: {result}")
+
+
+def cmd_runtime_start(args):
+    component = getattr(args, 'component', None)
+    if not component:
+        print("❌ Usage: madctl runtime start <component>", file=sys.stderr)
+        sys.exit(2)
+    _audit(action="runtime.start", details={"component": component})
+    try:
+        from mad_os.runtime.lifecycle import start
+        entry = start(component)
+    except Exception as e:
+        print(f"❌ Failed to start {component}: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    if getattr(args, 'json', False):
+        print(json.dumps(entry, indent=2))
+    else:
+        print(f"✅ Started {component}: running={entry.get('running')} result={entry.get('last_result')}")
+
+
+def cmd_runtime_stop(args):
+    component = getattr(args, 'component', None)
+    if not component:
+        print("❌ Usage: madctl runtime stop <component>", file=sys.stderr)
+        sys.exit(2)
+    _audit(action="runtime.stop", details={"component": component})
+    try:
+        from mad_os.runtime.lifecycle import stop
+        entry = stop(component)
+    except Exception as e:
+        print(f"❌ Failed to stop {component}: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    if getattr(args, 'json', False):
+        print(json.dumps(entry, indent=2))
+    else:
+        print(f"✅ Stopped {component}: running={entry.get('running')} result={entry.get('last_result')}")
+
+
+def cmd_runtime_restart(args):
+    component = getattr(args, 'component', None)
+    if not component:
+        print("❌ Usage: madctl runtime restart <component>", file=sys.stderr)
+        sys.exit(2)
+    _audit(action="runtime.restart", details={"component": component})
+    try:
+        from mad_os.runtime.lifecycle import restart
+        entry = restart(component)
+    except Exception as e:
+        print(f"❌ Failed to restart {component}: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    if getattr(args, 'json', False):
+        print(json.dumps(entry, indent=2))
+    else:
+        print(f"✅ Restarted {component}: running={entry.get('running')} result={entry.get('last_result')}")
+
         if "last_event" in data["audit"]:
             print("Last action:")
             le = data["audit"]["last_event"]
