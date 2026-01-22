@@ -1,0 +1,11 @@
+{
+  "service": "exo",
+  "version": "v1",
+  "port": 8000,
+  "health": "/health",
+  "capabilities": [
+    "llm_proxy",
+    "token_accounting",
+    "provider_failover"
+  ]
+}
