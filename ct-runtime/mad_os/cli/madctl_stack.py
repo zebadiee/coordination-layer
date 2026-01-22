@@ -148,15 +148,8 @@ def cmd_stack_stop(args):
     )
     _run_systemctl(["stop", "mad-os-exo", "mad-os-hud"])
 
-def cmd_stack_status(args):
-    _audit(
-        action="stack.status",
-        details={
-            "ports_checked": [8000, 8501],
-        },
-    )
-
-    # Collect data
+def get_stack_status() -> dict:
+    """Return the stack status data dictionary used by the CLI and HUD."""
     data = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "host": os.uname().nodename,
@@ -174,6 +167,13 @@ def cmd_stack_status(args):
             "mode": last_audit["mode"],
             "timestamp": last_audit["ts"]
         }
+
+    # Read-only readiness info (no behavioral change)
+    try:
+        from mad_os.adapters import readiness_adapter
+        data["readiness"] = readiness_adapter.read_readiness()
+    except Exception:
+        data["readiness"] = {"state": "HALT", "exists": False}
 
     # Check ports and adapter-driven health
     try:
@@ -217,6 +217,19 @@ def cmd_stack_status(args):
             entry["healthy"] = running
 
         data["stack"][name] = entry
+
+    return data
+
+
+def cmd_stack_status(args):
+    _audit(
+        action="stack.status",
+        details={
+            "ports_checked": [8000, 8501],
+        },
+    )
+
+    data = get_stack_status()
 
     if getattr(args, 'json', False):
         print(json.dumps(data, indent=2))
