@@ -722,3 +722,44 @@ def _run_systemctl(args):
             f"systemctl failed: {' '.join(cmd)}\\n{e.stderr}"
         )
 # --- end helper ---
+
+
+def cmd_runtime_supervise(args):
+    _audit(action="runtime.supervise", details={})
+    try:
+        from mad_os.runtime.supervisor import supervise
+        data = supervise()
+    except Exception as e:
+        print(f"❌ Failed to run supervisor: {e}", file=sys.stderr)
+        sys.exit(2)
+    if getattr(args, 'json', False):
+        print(json.dumps(data, indent=2))
+    else:
+        issues = data.get('issues', [])
+        if issues:
+            print("🟡 Attention required: the supervisor detected issues")
+            for it in issues:
+                print(f"  • {it['component']}: {it['issue']} - {it.get('details', {})}")
+        else:
+            print("✅ No supervisor issues detected")
+
+
+def cmd_runtime_observe(args):
+    _audit(action="runtime.observe", details={})
+    try:
+        from mad_os.runtime.observability import gather_observability
+        data = gather_observability()
+    except Exception as e:
+        print(f"❌ Failed to obtain runtime observability: {e}", file=sys.stderr)
+        sys.exit(2)
+    if getattr(args, 'json', False):
+        print(json.dumps(data, indent=2))
+    else:
+        print("🔍 MAD-OS runtime observability\n")
+        print(f"Readiness: {data.get('readiness')}")
+        if data.get('issues'):
+            print("Issues detected:")
+            for it in data.get('issues'):
+                print(f"  • {it['component']}: {it['issue']}")
+        else:
+            print("No issues detected")
