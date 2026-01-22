@@ -16,8 +16,22 @@ import sys
 
 from ct_runtime.ops import readiness_emitter as readiness
 from ct_runtime.ops.readiness_emitter import determine_state, emit_readiness
-from ct_runtime.ops.monitoring import lock_presence
-from ct_runtime.core.ct_root import write_audit_event
+import os
+try:
+    # Prefer canonical audit writer when available
+    from ct_runtime.core.ct_root import write_audit_event
+except Exception:
+    # Fallback: best-effort JSONL append under .mad_os to avoid import-time
+    # failures in lightweight checkouts. This preserves the audit intent.
+    from pathlib import Path
+
+    def write_audit_event(actor: str, action: str, target: str, result: str):
+        audit_dir = Path(__file__).resolve().parents[1] / ".mad_os"
+        audit_dir.mkdir(parents=True, exist_ok=True)
+        fname = audit_dir / f"AUDIT-{datetime.utcnow().date().isoformat()}.jsonl"
+        with open(fname, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps({"ts": datetime.utcnow().isoformat() + "Z", "actor": actor, "action": action, "target": target, "result": result}) + "\n")
+
 
 
 def _gather_checks() -> dict:
@@ -26,7 +40,8 @@ def _gather_checks() -> dict:
         "network": readiness._network_ok(),
         "docker": readiness._docker_ok(),
         "disk": readiness._disk_writable(),
-        "lock": lock_presence().get("exists", False),
+        # Simple lock presence probe (avoid depending on monitoring module here)
+        "lock": os.path.exists('/srv/ct/ct_lock.json'),
     }
 
 
