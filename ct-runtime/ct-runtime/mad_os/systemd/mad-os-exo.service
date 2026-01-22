@@ -1,0 +1,13 @@
+[Unit]
+Description=MAD-OS Exo Stub
+After=network.target
+
+[Service]
+Type=exec
+User=zebadiee
+ExecStart=/usr/bin/python3 /home/zebadiee/scripts/exo_stub.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
