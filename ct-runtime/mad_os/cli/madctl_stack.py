@@ -172,6 +172,8 @@ def get_stack_status() -> dict:
     try:
         from mad_os.adapters import readiness_adapter
         data["readiness"] = readiness_adapter.read_readiness()
+        # also expose normalized state for easy checks
+        data["readiness"]["state"] = readiness_adapter.readiness_state()
     except Exception:
         data["readiness"] = {"state": "HALT", "exists": False}
 
