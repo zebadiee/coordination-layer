@@ -186,8 +186,7 @@ def cmd_stack_status(args):
         running = result.returncode == 0
         pid = None
         if running:
-            lines = result.stdout.strip().split('
-')
+            lines = result.stdout.strip().split('\n')
             if len(lines) > 1:
                 parts = lines[1].split()
                 if len(parts) > 1:
