@@ -1,0 +1,27 @@
+- id: escalate_on_stop
+  action: ESCALATE
+  reason: supervised_stop_detected
+  score: 90
+  when:
+    issue_in: [SUPERVISED_STOP]
+
+- id: warn_on_stale
+  action: WARN
+  reason: stale_component
+  score: 50
+  when:
+    issue_in: [SUPERVISED_STALE, STALE]
+
+- id: warn_on_drift
+  action: WARN
+  reason: component_drift
+  score: 40
+  when:
+    drift_count_gte: 1
+
+- id: ignore_default
+  action: IGNORE
+  reason: no_issues_detected
+  score: 0
+  when:
+    always: true
